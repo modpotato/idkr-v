@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/modpotato/idkr.git"
+    "url": "git+https://github.com/modpotato/idkr-v.git"
   },
   "keywords": [
     "Krunker"
@@ -24,9 +24,9 @@
   "author": "Mixaz, NullDev, CreepSore",
   "license": "AGPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/modpotato/idkr/issues"
+    "url": "https://github.com/modpotato/idkr-v/issues"
   },
-  "homepage": "https://github.com/modpotato/idkr",
+  "homepage": "https://github.com/modpotato/idkr-v",
   "devDependencies": {
     "@babel/core": "^7.13.16",
     "@babel/eslint-parser": "^7.13.14",

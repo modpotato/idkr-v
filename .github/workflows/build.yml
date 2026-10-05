@@ -2,6 +2,10 @@ name: Build idkr-v
 
 on: push
 
+# Needed to find draft releases and upload the build artifacts to them
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
