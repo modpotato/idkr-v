@@ -2,6 +2,7 @@
 
 let AccountManager = require("../modules/account-manager");
 let UtilManager = require("../modules/util-manager");
+let Brand = require("../utils/brand");
 let settingsWindow = null;
 
 // @TODO: Find fix for incorrect `window` TS TypeDefs & refactor
@@ -47,8 +48,8 @@ UtilManager.instance.clientUtils.events.on("game-load", () => {
 	settingsWindow.getSettings = (...args) => origGetSettings.call(settingsWindow, ...args).replace(/^<\/div>/, "") + settingsWindow.getCSettings();
 
 	let clientTabIndex = {
-		basic: settingsWindow.tabs.basic.push({ name: "idkr", categories: [] }),
-		advanced: settingsWindow.tabs.advanced.push({ name: "idkr", categories: [] })
+		basic: settingsWindow.tabs.basic.push({ name: Brand.NAME, categories: [] }),
+		advanced: settingsWindow.tabs.advanced.push({ name: Brand.NAME, categories: [] })
 	};
 	settingsWindow.getCSettings = () => {
 		if (clientTabIndex[settingsWindow.settingType] !== settingsWindow.tabIndex + 1 && !settingsWindow.settingSearch) return "";

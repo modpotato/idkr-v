@@ -1,15 +1,14 @@
-appId: com.hyamix.idkr
+appId: com.modpotato.idkr-v
+productName: idkr-v
 win:
-  artifactName: ${productName}-portable-${os}-${arch}.${ext}
+  artifactName: ${productName}-portable-${os}.${ext}
   target:
     - target: nsis
       arch:
         - x64
-        - ia32
     - target: portable
       arch:
         - x64
-        - ia32
 mac:
   artifactName: ${productName}-portable-${os}-${arch}.${ext}
   target:
@@ -22,10 +21,10 @@ linux:
     - target: appImage
       arch:
         - x64
-        - ia32
+  executableName: idkr-v
   category: game
 nsis:
-  artifactName: ${productName}-setup-${os}-${arch}.${ext}
+  artifactName: ${productName}-setup-${os}.${ext}
   oneClick: false
   perMachine: true
   allowToChangeInstallationDirectory: true

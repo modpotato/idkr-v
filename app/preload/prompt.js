@@ -1,6 +1,6 @@
 "use strict";
 
-let { ipcRenderer } = require("electron");
+let { ipcRenderer, contextBridge } = require("electron");
 
 window.addEventListener("DOMContentLoaded", () => {
 	/** @type {HTMLInputElement} */
@@ -14,20 +14,16 @@ window.addEventListener("DOMContentLoaded", () => {
 		});
 		promptInput.focus();
 	});
-
-	// For context isolation
-
-	// contextBridge.exposeInMainWorld("sendValue", value => {
-	// 	ipcRenderer.send("prompt-return", value);
-	// 	window.close();
-	// });
-
-	// contextBridge.exposeInMainWorld("importFile", () => (document.getElementById("fileSelect").files[0].text().then(text => (promptInput.value = text))));
-
-	window.sendValue = value => {
-		ipcRenderer.send("prompt-return", value);
-		window.close();
-	};
-
-	window.importFile = () => (document.getElementById("fileSelect").files[0].text().then(text => (promptInput.value = text)));
 });
+
+contextBridge.exposeInMainWorld("sendValue", value => {
+	ipcRenderer.send("prompt-return", value);
+	window.close();
+});
+
+contextBridge.exposeInMainWorld("importFile", () => (
+	document.getElementById("fileSelect").files[0].text().then(text => {
+		/** @type {HTMLInputElement} */
+		(document.getElementById("promptInput")).value = text;
+	})
+));

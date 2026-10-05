@@ -38,18 +38,20 @@ class Swapper {
 				if (dirent.isDirectory()) this.#recursiveSwapNormal(win, `${prefix}/${dirent.name}`);
 				else {
 					let pathname = `${prefix}/${dirent.name}`;
+					let isAssetsOnly = /^\/(?:models|scares|sound|textures|videos)\//.test(pathname);
+					// Both the main and the assets domain serve files from /img
+					let isOnAssets = isAssetsOnly || /^\/img\//.test(pathname);
 					this.urls.push(
-						...(/^\/(?:models|scares|sound|textures|videos)\//.test(pathname)
-							? [
-								`*://assets.krunker.io${pathname}`,
-								`*://assets.krunker.io${pathname}?*`
-							] : [
-								`*://krunker.io${pathname}`,
-								`*://krunker.io${pathname}?*`,
-								`*://comp.krunker.io${pathname}`,
-								`*://comp.krunker.io${pathname}?*`
-							]
-						)
+						...(isOnAssets ? [
+							`*://assets.krunker.io${pathname}`,
+							`*://assets.krunker.io${pathname}?*`
+						] : []),
+						...(isAssetsOnly ? [] : [
+							`*://krunker.io${pathname}`,
+							`*://krunker.io${pathname}?*`,
+							`*://comp.krunker.io${pathname}`,
+							`*://comp.krunker.io${pathname}?*`
+						])
 					);
 				}
 			});

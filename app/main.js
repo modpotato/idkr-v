@@ -3,20 +3,24 @@
 require("v8-compile-cache");
 
 let path = require("path");
-let { app, protocol } = require("electron");
+let { pathToFileURL } = require("url");
+let { app, protocol, net } = require("electron");
 let Store = require("electron-store");
 let log = require("electron-log");
 let yargs = require("yargs");
 
 let PathUtils = require("./utils/path-utils");
 let UrlUtils = require("./utils/url-utils");
+let Brand = require("./utils/brand");
 let cliSwitches = require("./modules/cli-switches");
 let BrowserLoader = require("./loaders/browser-loader");
 let IpcLoader = require("./loaders/ipc-loader");
 
+// Required by electron-log@5 so that renderer processes can log through the main process
+log.initialize();
 Object.assign(console, log.functions);
 
-console.log(`idkr@${app.getVersion()} { Electron: ${process.versions.electron}, Node: ${process.versions.node}, Chromium: ${process.versions.chrome} }`);
+console.log(`${Brand.NAME}@${app.getVersion()} { Electron: ${process.versions.electron}, Node: ${process.versions.node}, Chromium: ${process.versions.chrome} }`);
 if (!app.requestSingleInstanceLock()) app.quit();
 
 const { argv } = yargs;
@@ -46,12 +50,14 @@ if (process.platform === "win32") {
 }
 
 let init = function() {
-	// Workaround for Electron 8.x
+	// Must happen before the app is ready
 	protocol.registerSchemesAsPrivileged([{
 		scheme: "idkr-swap",
 		privileges: {
 			secure: true,
-			corsEnabled: true
+			corsEnabled: true,
+			supportFetchAPI: true,
+			stream: true
 		}
 	}]);
 
@@ -62,7 +68,20 @@ let init = function() {
 
 	app.once("ready", async() => {
 		await PathUtils.ensureDirs(BrowserLoader.getSwapDir(), userscriptsDir);
-		protocol.registerFileProtocol("idkr-swap", (request, callback) => callback(decodeURI(request.url.replace(/^idkr-swap:/, ""))));
+		protocol.handle("idkr-swap", async request => {
+			// Strip the scheme and, on Windows, the leading slash in front of the drive letter
+			let filePath = path.resolve(decodeURI(request.url.replace(/^idkr-swap:/, "")).replace(/^[/\\]+(?=[a-zA-Z]:)/, ""));
+			let swapDir = path.resolve(BrowserLoader.getSwapDir());
+
+			// Only ever serve files from within the swap directory, never arbitrary local files
+			let normalize = p => process.platform === "win32" ? p.toLowerCase() : p;
+			if (!normalize(filePath).startsWith(normalize(swapDir + path.sep))) return new Response("Forbidden", { status: 403 });
+
+			let response = await net.fetch(pathToFileURL(filePath).toString());
+			let headers = new Headers(response.headers);
+			headers.set("Access-Control-Allow-Origin", "*");
+			return new Response(response.body, { status: response.status, headers });
+		});
 		app.on("second-instance", (_, _argv) => {
 			let instanceArgv = yargs.parse(_argv);
 			console.log("Second instance: " + _argv);

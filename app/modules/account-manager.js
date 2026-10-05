@@ -12,8 +12,8 @@ let WindowManager = require("./window-manager");
 const HTML = {
 	BTN_INNER: '<div id="accManagerBtn" class="button buttonB bigShadowT" onmouseenter="playTick()" style="display:block;width:300px;text-align:center;padding:15px;font-size:23px;pointer-events:all;padding-bottom:22px;margin-left:-5px;margin-top:5px">Alt-Manager</div>',
 	ALT_MENU: '<div id="altAccounts"></div><div id="buttons"><div class="accountButton" id="altAdd">Add new account</div></div>',
-	FORM: '<input id="accName" type="text" placeholder="Enter Username" class="accountInput" style="margin-top:25px;" value=""><input id="accPass" type="password" placeholder="Enter Password" class="accountInput"><div id="accResp" style="margin-top:10px;font-size:18px;color:rgba(0,0,0,0.5);"><span style="color:rgba(0,0,0,0.8)"></span></div><div class="accountButton" id="addAccountButtonB" style="">Add Account</div></div></div>',
-	STYLE: "#altAdd,#addAccountButtonB{width:100%; color:white}.altAccountsLISTED{margin-right:10px;padding:0!important;background:0 0!important;box-shadow:unset!important; height:auto}.altdeletebtn{display:inline-block;padding:10px 13px;color:#fff;background-color:#ff4747;border-radius:0 4px 4px 0;box-shadow:inset 0 -7px 0 0 #992b2b}.altlistelement{display:inline-block;padding:10px 15px 10px 17px;color:#fff;background-color:#ffc147;border-radius:4px 0 0 4px;box-shadow:inset 0 -7px 0 0 #b08531}.deleteColor{color:#000!important;background-color:#313131!important}"
+	FORM: '<input id="idkrAccName" type="text" placeholder="Enter Username or Email" class="accountInput" style="margin-top:25px;" value=""><input id="idkrAccPass" type="password" placeholder="Enter Password" class="accountInput"><div id="accResp" style="margin-top:10px;font-size:18px;color:rgba(0,0,0,0.5);"><span style="color:rgba(0,0,0,0.8)"></span></div><div class="accountButton" id="addAccountButtonB" style="">Add Account</div></div></div>',
+	STYLE: "#altAdd,#addAccountButtonB{width:100%; color:white}.accountButton{box-sizing:border-box;margin-top:10px;padding:10px 15px;text-align:center;cursor:pointer;background-color:#2e9e4a;border-radius:4px;box-shadow:inset 0 -7px 0 0 #1f6e32}.accountButton:hover{filter:brightness(1.15)}.altAccountsLISTED{margin-right:10px;padding:0!important;background:0 0!important;box-shadow:unset!important; height:auto}.altdeletebtn{display:inline-block;padding:10px 13px;color:#fff;background-color:#ff4747;border-radius:0 4px 4px 0;box-shadow:inset 0 -7px 0 0 #992b2b}.altlistelement{display:inline-block;padding:10px 15px 10px 17px;color:#fff;background-color:#ffc147;border-radius:4px 0 0 4px;box-shadow:inset 0 -7px 0 0 #b08531}.deleteColor{color:#000!important;background-color:#313131!important}"
 };
 
 /**
@@ -76,22 +76,79 @@ class AccountManager {
 	};
 
 	/**
-	 * Simulate login
+	 * Wait until a getter returns something truthy
 	 *
 	 * @private
-	 * @param {string} name
-	 * @param {string} pass
+	 * @template T
+	 * @param {() => T} getter
+	 * @param {number} [timeout=5000]
+	 * @returns {Promise<T>}
 	 * @memberof AccountManager
 	 */
-	#login = (name, pass) => {
-		/** @type {window} */ (window).logoutAcc();
-		/** @type {inputs} */ (document.getElementById("accName")).value = name;
-		/** @type {inputs} */ (document.getElementById("accPass")).value = pass;
-		/** @type {window} */ (window).loginAcc();
-		/** @type {inputs} */ (document.getElementById("accName")).style.display = "none";
-		/** @type {inputs} */ (document.getElementById("accPass")).style.display = "none";
-		/** @type {inputs} */ (document.getElementsByClassName("accountButton")[0]).style.display = "none";
-		/** @type {inputs} */ (document.getElementsByClassName("accountButton")[1]).style.display = "none";
+	#waitFor = (getter, timeout = 5000) => new Promise((resolve, reject) => {
+		let start = Date.now();
+		let check = () => {
+			let value = getter();
+			if (value) resolve(value);
+			else if (Date.now() - start > timeout) reject(new Error("Timed out waiting for the login form"));
+			else setTimeout(check, 50);
+		};
+		check();
+	});
+
+	/**
+	 * Set the value of an input in a way that the game's (Svelte) form notices
+	 *
+	 * @private
+	 * @param {inputs} input
+	 * @param {string} value
+	 * @memberof AccountManager
+	 */
+	#setInputValue = (input, value) => {
+		input.value = value;
+		input.dispatchEvent(new Event("input", { bubbles: true }));
+	};
+
+	/**
+	 * Simulate login by filling in and submitting the game's login form.
+	 * The form has either an email or a username field, depending on a toggle.
+	 *
+	 * @private
+	 * @param {string} name - username or email
+	 * @param {string} pass
+	 * @returns {Promise<void>}
+	 * @memberof AccountManager
+	 */
+	#login = async(name, pass) => {
+		try {
+			let nameInputSelector = name.includes("@") ? "#accEmail" : "#accName";
+
+			// The game keeps login forms it showed earlier in the DOM (hidden), so only use the one on top
+			let getForm = () => [...document.querySelectorAll("form")].reverse()
+				.find(form => form.querySelector("#accPass") && form.getClientRects().length > 0);
+
+			/** @type {window} */ (window).logoutAcc();
+			/** @type {window} */ (window).loginOrRegister();
+
+			await this.#waitFor(getForm);
+			if (!getForm().querySelector(nameInputSelector)) {
+				// The form shows the other kind of field, so switch it
+				/** @type {HTMLElement} */
+				let toggle = (await this.#waitFor(() => [...getForm().querySelectorAll(".auth-toggle-btn")]
+					.find(btn => /use (username|email) instead/i.test(/** @type {HTMLElement} */ (btn).innerText))));
+				toggle.click();
+			}
+
+			/** @type {inputs} */
+			let nameInput = (await this.#waitFor(() => getForm().querySelector(nameInputSelector)));
+			this.#setInputValue(nameInput, name);
+			this.#setInputValue(getForm().querySelector("#accPass"), pass);
+			getForm().requestSubmit();
+		}
+		catch (err) {
+			console.error("[idkr] Alt-Manager login failed", err);
+			alert("Could not log in automatically: " + err.message);
+		}
 	};
 
 	/**
@@ -121,8 +178,8 @@ class AccountManager {
 			this.addWin.show();
 			document.getElementById("addAccountButtonB").addEventListener("click", () => (
 				this.#addAccount(
-					/** @type {inputs} */(document.getElementById("accName")).value,
-					/** @type {inputs} */(document.getElementById("accPass")).value
+					/** @type {inputs} */(document.getElementById("idkrAccName")).value,
+					/** @type {inputs} */(document.getElementById("idkrAccPass")).value
 				)
 			));
 		});
