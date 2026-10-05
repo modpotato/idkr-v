@@ -15,6 +15,8 @@ This client aims for:
 | macOS | `dmg` |
 | Linux | `AppImage` |
 
+Only 64-bit builds are provided, since current versions of Electron (and therefore Chromium) no longer support 32-bit systems.
+
 ## Links
 ### Discord Server
 https://discord.gg/wEZbFFX
@@ -29,4 +31,3 @@ https://github.com/idkr-client/idkr/wiki
 - [Windows portable](https://github.com/idkr-client/idkr/releases/latest/download/idkr-portable-win.exe)
 - [macOS portable](https://github.com/idkr-client/idkr/releases/latest/download/idkr-portable-mac-x64.dmg)
 - [Linux portable (x86_64)](https://github.com/idkr-client/idkr/releases/latest/download/idkr-portable-linux-x86_64.AppImage)
-- [Linux portable (i386)](https://github.com/idkr-client/idkr/releases/latest/download/idkr-portable-linux-i386.AppImage)

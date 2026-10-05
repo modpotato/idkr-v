@@ -41,7 +41,7 @@ class WindowManager {
 
 				document.getElementsByTagName("body")[0].addEventListener("click", e => {
 					// @ts-ignore
-					(!e.path.find(p => p.id === "idkr-menuWindow" || p.id === this.callerId)) && this.hide();
+					(!e.composedPath().find(p => p.id === "idkr-menuWindow" || p.id === this.callerId)) && this.hide();
 				});
 			}
 		});

@@ -30,30 +30,50 @@ class BrowserLoader {
 	}
 
 	/**
+	 * Window options for game windows
+	 *
+	 * @static
+	 * @returns {import("electron").BrowserWindowConstructorOptions}
+	 * @memberof BrowserLoader
+	 */
+	static getWindowOptions() {
+		return {
+			width: 1600,
+			height: 900,
+			show: false,
+			webPreferences: {
+				preload: path.join(__dirname, "../preload/global.js"),
+				// The preload script uses Node modules and shares the page's world to hook into the game
+				contextIsolation: false,
+				sandbox: false
+				// nodeIntegrationInWorker: true
+			}
+		};
+	}
+
+	/**
+	 * Open a URL in the default browser, but only if it is a plain web link
+	 *
+	 * @static
+	 * @param {string} url
+	 * @memberof BrowserLoader
+	 */
+	static openExternal(url) {
+		if (/^https?:$/.test(new URL(url).protocol)) shell.openExternal(url);
+	}
+
+	/**
 	 * Initialize the browser window
 	 *
 	 * @param {string} url
 	 * @param {import("electron-store")} config
-	 * @param {object} webContents
 	 * @returns
 	 */
-	static initWindow(url, config, webContents) {
-		let win = new BrowserWindow({
-			width: 1600,
-			height: 900,
-			show: false,
-			// @ts-ignore
-			webContents,
-			webPreferences: {
-				preload: path.join(__dirname, "../preload/global.js"),
-				contextIsolation: false
-				// nodeIntegrationInWorker: true
-			}
-		});
+	static initWindow(url, config) {
+		let win = new BrowserWindow(this.getWindowOptions());
 
 		this.setupWindow(win, config, true);
-
-		if (!webContents) win.loadURL(url);
+		win.loadURL(url);
 
 		return win;
 	}
@@ -129,18 +149,21 @@ class BrowserLoader {
 			&& (shortcuts.register(win, "F6", () => win.loadURL("https://krunker.io/"))))
 		);
 
-		contents.on("new-window", (event, url, frameName, disposition, options) => {
-			event.preventDefault();
-			if (UrlUtils.locationType(url) === "external") shell.openExternal(url);
-			else if (UrlUtils.locationType(url) !== "unknown") {
+		contents.setWindowOpenHandler(({ url, frameName }) => {
+			let type = UrlUtils.locationType(url);
+			if (type === "external") this.openExternal(url);
+			else if (type !== "unknown") {
 				if (frameName === "_self") contents.loadURL(url);
-				else this.initWindow(url, config, /** @type {object} */(options).webContents);
+				else return { action: "allow", overrideBrowserWindowOptions: this.getWindowOptions() };
 			}
+			return { action: "deny" };
 		});
+		contents.on("did-create-window", childWin => this.setupWindow(childWin, config, true));
 
-		contents.on("will-navigate", (event, url) => {
+		contents.on("will-navigate", (event, legacyUrl) => {
+			let url = event.url || legacyUrl;
 			event.preventDefault();
-			if (UrlUtils.locationType(url) === "external") shell.openExternal(url);
+			if (UrlUtils.locationType(url) === "external") this.openExternal(url);
 			else if (UrlUtils.locationType(url) !== "unknown") contents.loadURL(url);
 		});
 
@@ -266,7 +289,8 @@ class BrowserLoader {
 					});
 
 					autoUpdater.autoDownload = shouldAutoUpdate === "download";
-					autoUpdater.checkForUpdates();
+					// Resolves with null, without emitting any event, if the updater isn't active (e.g. Linux builds that aren't AppImages)
+					autoUpdater.checkForUpdates().then(result => result || resolve()).catch(reject);
 				});
 			});
 		}
@@ -276,7 +300,7 @@ class BrowserLoader {
 			setTimeout(() => win.destroy(), 2000);
 		}
 
-		autoUpdate().finally(() => launchGame());
+		autoUpdate().catch(err => console.error("Auto update failed", err)).finally(() => launchGame());
 
 		BrowserLoader.setupWindow(win, config);
 		win.loadFile("app/html/splash.html");
