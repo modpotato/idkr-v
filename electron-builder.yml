@@ -1,4 +1,5 @@
-appId: com.hyamix.idkr
+appId: com.modpotato.idkr-v
+productName: idkr-v
 win:
   artifactName: ${productName}-portable-${os}.${ext}
   target:
@@ -20,6 +21,7 @@ linux:
     - target: appImage
       arch:
         - x64
+  executableName: idkr-v
   category: game
 nsis:
   artifactName: ${productName}-setup-${os}.${ext}

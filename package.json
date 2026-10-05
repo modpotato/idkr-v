@@ -1,7 +1,7 @@
 {
   "name": "idkr",
   "version": "1.3.3",
-  "description": "idk, just a Krunker client",
+  "description": "idkr-v (idkr vibe), a Krunker client",
   "main": "./app/main.js",
   "private": true,
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/idkr-client/idkr.git"
+    "url": "git+https://github.com/modpotato/idkr.git"
   },
   "keywords": [
     "Krunker"
@@ -24,9 +24,9 @@
   "author": "Mixaz, NullDev, CreepSore",
   "license": "AGPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/idkr-client/idkr/issues"
+    "url": "https://github.com/modpotato/idkr/issues"
   },
-  "homepage": "https://idkr.dev",
+  "homepage": "https://github.com/modpotato/idkr",
   "devDependencies": {
     "@babel/core": "^7.13.16",
     "@babel/eslint-parser": "^7.13.14",

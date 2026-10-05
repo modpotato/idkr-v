@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-As contributors and maintainers of the idkr client, we pledge to respect everyone who contributes by creating issues and pull requests, helping the community with problems, and any other way of contribution.
+As contributors and maintainers of the idkr-v client, we pledge to respect everyone who contributes by creating issues and pull requests, helping the community with problems, and any other way of contribution.
 
 ## Our Standards
 
@@ -29,7 +29,7 @@ If any member of the community violates this code of conduct, the community admi
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise, unacceptable behavior may be reported to the community administrators responsible for enforcement at
-[the idkr Discord server](https://discord.com/invite/wEZbFFX).
+[the idkr-v repository maintainers](https://github.com/modpotato/idkr/issues) on GitHub.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community administrators are obligated to respect the privacy and security of the reporter of any incident.

@@ -19,6 +19,9 @@ It can be found under `<DOCUMENTS>/idkr/scripts/`.
 Under Windows this generally is under `%HOMEPATH%\Documents\`.
 Under Linux it depends on your Desktop-Manager. It should be somewhere under `~/` though.
 
+The folder is still called `idkr` (not `idkr-v`), so scripts written for the original idkr keep working.
+Settings that a script declares show up in the **idkr-v** tab of Krunker's settings.
+
 ## Development
  1. [Script Structure](#script-structure)
  2. [Initializing the Script](#initializing-the-script)
@@ -29,7 +32,7 @@ Under Linux it depends on your Desktop-Manager. It should be somewhere under `~/
  7. [Complete example](#complete-example)
 
 ### Script Structure
-The basic script structure consists of a class which provides certain properties that help idkr to instantiate your script as needed.
+The basic script structure consists of a class which provides certain properties that help idkr-v to instantiate your script as needed.
 Beginning with the `meta`-property, which contains metadata about the name, author, version and a small description of the script.
 
 Example:
@@ -131,7 +134,7 @@ class Userscript {
         this.meta = {
             name: "Script",
             version: "1.0",
-            author: "idkr",
+            author: "idkr-v",
             description: "Description"
         };
         /** @type {IUserscriptConfig} */

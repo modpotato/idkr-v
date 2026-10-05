@@ -4,6 +4,7 @@ let { BrowserWindow, ipcMain, app } = require("electron");
 
 let BrowserLoader = require("./browser-loader");
 let RPCHandler = require("../modules/rpc-handler");
+let Brand = require("../utils/brand");
 
 class IpcLoader {
 	/**
@@ -13,7 +14,7 @@ class IpcLoader {
 	 */
 	static load(config) {
 		ipcMain.handle("get-app-info", () => ({
-			name: app.name,
+			name: Brand.NAME,
 			version: app.getVersion(),
 			documentsDir: app.getPath("documents")
 		}));

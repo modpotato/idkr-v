@@ -11,6 +11,7 @@ let yargs = require("yargs");
 
 let PathUtils = require("./utils/path-utils");
 let UrlUtils = require("./utils/url-utils");
+let Brand = require("./utils/brand");
 let cliSwitches = require("./modules/cli-switches");
 let BrowserLoader = require("./loaders/browser-loader");
 let IpcLoader = require("./loaders/ipc-loader");
@@ -19,7 +20,7 @@ let IpcLoader = require("./loaders/ipc-loader");
 log.initialize();
 Object.assign(console, log.functions);
 
-console.log(`idkr@${app.getVersion()} { Electron: ${process.versions.electron}, Node: ${process.versions.node}, Chromium: ${process.versions.chrome} }`);
+console.log(`${Brand.NAME}@${app.getVersion()} { Electron: ${process.versions.electron}, Node: ${process.versions.node}, Chromium: ${process.versions.chrome} }`);
 if (!app.requestSingleInstanceLock()) app.quit();
 
 const { argv } = yargs;

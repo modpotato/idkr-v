@@ -12,6 +12,7 @@ let log = require("electron-log");
 let UrlUtils = require("../utils/url-utils");
 let UserscriptInitiator = require("../modules/userscript-manager/userscript-initiator");
 let UtilManager = require("../modules/util-manager");
+let Brand = require("../utils/brand");
 
 const config = new Store();
 
@@ -91,7 +92,7 @@ function setFocusEvent() {
 	window.addEventListener("focus", () => {
 		let rpcActivity = {
 			largeImageKey: "idkr-logo",
-			largeImageText: "idkr client"
+			largeImageText: `${Brand.NAME} client`
 		};
 
 		function sendRPCGamePresence() {
@@ -184,6 +185,6 @@ window.addEventListener("unload", () => {
 		state: "Idle",
 		startTimestamp: Math.floor(Date.now() / 1000),
 		largeImageKey: "idkr-logo",
-		largeImageText: "idkr client"
+		largeImageText: `${Brand.NAME} client`
 	});
 });
