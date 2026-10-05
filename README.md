@@ -4,7 +4,7 @@
 
 idkr-v is a fork of [idkr](https://github.com/idkr-client/idkr) by Mixaz, NullDev and CreepSore. The original project stopped working on current Krunker, so it was brought up to date by an AI coding agent ([Claude Code](https://claude.com/claude-code)) at the request of the repository owner. That is where the "v" (vibe) comes from.
 
-> **About the AI-assisted part:** the update was tested against the live game in a headless Linux environment (menus, settings, Alt-Manager login form, resource swapper, userscripts, shortcuts, popups, packaged build). Actual matches, Windows and macOS builds were not tested by the agent. If something is off, please [open an issue](https://github.com/modpotato/idkr/issues).
+> **About the AI-assisted part:** the update was tested against the live game in a headless Linux environment (menus, settings, Alt-Manager login form, resource swapper, userscripts, shortcuts, popups, packaged build). Actual matches, Windows and macOS builds were not tested by the agent. If something is off, please [open an issue](https://github.com/modpotato/idkr-v/issues).
 
 This client aims for:
 - Stable behavior and performance
@@ -21,11 +21,11 @@ This client aims for:
 Only 64-bit builds are provided, since current versions of Electron (and therefore Chromium) no longer support 32-bit systems.
 
 ## Download
-[Latest release / changelog](https://github.com/modpotato/idkr/releases/latest)
-- [Windows installer](https://github.com/modpotato/idkr/releases/latest/download/idkr-v-setup-win.exe)
-- [Windows portable](https://github.com/modpotato/idkr/releases/latest/download/idkr-v-portable-win.exe)
-- [macOS portable](https://github.com/modpotato/idkr/releases/latest/download/idkr-v-portable-mac-x64.dmg)
-- [Linux portable (x86_64)](https://github.com/modpotato/idkr/releases/latest/download/idkr-v-portable-linux-x86_64.AppImage)
+[Latest release / changelog](https://github.com/modpotato/idkr-v/releases/latest)
+- [Windows installer](https://github.com/modpotato/idkr-v/releases/latest/download/idkr-v-setup-win.exe)
+- [Windows portable](https://github.com/modpotato/idkr-v/releases/latest/download/idkr-v-portable-win.exe)
+- [macOS portable](https://github.com/modpotato/idkr-v/releases/latest/download/idkr-v-portable-mac-x64.dmg)
+- [Linux portable (x86_64)](https://github.com/modpotato/idkr-v/releases/latest/download/idkr-v-portable-linux-x86_64.AppImage)
 
 ## Features
 - **idkr-v settings tab** inside Krunker's own settings: performance and Chromium flags, interface options, Discord, updates, userscripts and the resource swapper.
@@ -90,7 +90,7 @@ npm run dist       # installers / portable builds
 - The resource swapper handles the new `img/` layout and `www.krunker.io` links are recognised.
 - The resource swapper's `idkr-swap` protocol only serves files from the swap folder.
 - The splash screen no longer hangs when the auto updater is inactive (for example, Linux builds that are not AppImages).
-- 64-bit builds only. Auto updates now come from [this repository's releases](https://github.com/modpotato/idkr/releases) instead of the original project's.
+- 64-bit builds only. Auto updates now come from [this repository's releases](https://github.com/modpotato/idkr-v/releases) instead of the original project's.
 
 ## Links and credits
 - Original project: [idkr-client/idkr](https://github.com/idkr-client/idkr) (authors: Mixaz, NullDev, CreepSore), its [wiki](https://github.com/idkr-client/idkr/wiki) and [Discord server](https://discord.gg/wEZbFFX). The wiki describes the original client, so it may not match idkr-v exactly.
