@@ -38,6 +38,19 @@ const baseStyles = `
 }
 `;
 
+const adBlockStyles = `
+.endAHolder,
+#aHider,
+#adCon,
+#rightABox,
+#aContainer,
+#topRightAdHolder,
+#braveWarning,
+[id^="krunker-io_"] {
+	display: none !important;
+}
+`;
+
 const menuTimerStyles = `
 #uiBase.onMenu #spectateUI {
 	display: block !important;
@@ -77,5 +90,6 @@ const menuTimerStyles = `
 
 module.exports = {
 	baseStyles,
+	adBlockStyles,
 	menuTimerStyles
 };

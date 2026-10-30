@@ -216,14 +216,32 @@ class AccountManager {
 	 * @memberof AccountManager
 	 */
 	injectStyles() {
-		document.head.appendChild(Object.assign(document.createElement("style"), { innerText: HTML.STYLE }));
-		let tar = document.getElementById("customizeButton");
+		if (!document.getElementById("idkr-account-styles")) {
+			document.head.appendChild(Object.assign(document.createElement("style"), {
+				id: "idkr-account-styles",
+				innerText: HTML.STYLE
+			}));
+		}
 
-		let tmp = document.createElement("div");
-		tmp.innerHTML = HTML.BTN_INNER.trim();
+		let attempts = 0;
+		let injectButton = () => {
+			if (document.getElementById("accManagerBtn")) return;
 
-		tar.parentNode.insertBefore(tmp.firstChild, tar.nextSibling);
-		document.getElementById("accManagerBtn").addEventListener("click", () => this.#openPopup());
+			let tar = document.getElementById("customizeButton");
+			if (!tar) {
+				// The menu can render after DOMContentLoaded; retry for a bit
+				if (++attempts < 300) setTimeout(injectButton, 100);
+				return;
+			}
+
+			let tmp = document.createElement("div");
+			tmp.innerHTML = HTML.BTN_INNER.trim();
+
+			tar.parentNode.insertBefore(tmp.firstChild, tar.nextSibling);
+			document.getElementById("accManagerBtn").addEventListener("click", () => this.#openPopup());
+		};
+
+		injectButton();
 	}
 }
 

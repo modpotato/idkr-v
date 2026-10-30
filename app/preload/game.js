@@ -28,6 +28,24 @@ Object.assign(window[UtilManager.instance._utilKey], {
 
 let accountManager = new AccountManager();
 
+/**
+ * The game can emit game-load before its window objects are ready,
+ * so wait for the settings window instead of assuming it exists.
+ *
+ * @param {number} [timeout=30000]
+ * @returns {Promise<object>}
+ */
+let waitForSettingsWindow = (timeout = 30000) => new Promise((resolve, reject) => {
+	let started = Date.now();
+	let check = () => {
+		let settings = /** @type {object} */ (window).windows && /** @type {object} */ (window).windows[0];
+		if (settings && typeof settings.getSettings === "function" && settings.tabs) resolve(settings);
+		else if (Date.now() - started > timeout) reject(new Error("Timed out waiting for the settings window"));
+		else setTimeout(check, 50);
+	};
+	check();
+});
+
 document.addEventListener("DOMContentLoaded", () => {
 	let windowsObserver = new MutationObserver(() => {
 		windowsObserver.disconnect();
@@ -38,10 +56,21 @@ document.addEventListener("DOMContentLoaded", () => {
 	accountManager.injectStyles();
 });
 
-UtilManager.instance.clientUtils.events.on("game-load", () => {
+UtilManager.instance.clientUtils.events.on("game-load", async() => {
 	/** @type {object} */
 	(window).closeClient = close;
-	settingsWindow = /** @type {object} */ (window).windows[0];
+
+	// The event can fire before window.windows is populated
+	try {
+		settingsWindow = await waitForSettingsWindow();
+	}
+	catch (err) {
+		console.error("[idkr] Could not hook into the game settings window", err);
+		return;
+	}
+
+	// Do not patch the same window twice
+	if (settingsWindow.getCSettings) return;
 
 	// Patch getSettings to fix custom tab bug + settings not displaying issue
 	let origGetSettings = settingsWindow.getSettings;

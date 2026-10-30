@@ -3,8 +3,7 @@
 require("v8-compile-cache");
 
 let path = require("path");
-let { pathToFileURL } = require("url");
-let { app, protocol, net } = require("electron");
+let { app, protocol } = require("electron");
 let Store = require("electron-store");
 let log = require("electron-log");
 let yargs = require("yargs");
@@ -15,6 +14,7 @@ let Brand = require("./utils/brand");
 let cliSwitches = require("./modules/cli-switches");
 let BrowserLoader = require("./loaders/browser-loader");
 let IpcLoader = require("./loaders/ipc-loader");
+let SwapProtocol = require("./modules/swap-protocol");
 
 // Required by electron-log@5 so that renderer processes can log through the main process
 log.initialize();
@@ -68,20 +68,8 @@ let init = function() {
 
 	app.once("ready", async() => {
 		await PathUtils.ensureDirs(BrowserLoader.getSwapDir(), userscriptsDir);
-		protocol.handle("idkr-swap", async request => {
-			// Strip the scheme and, on Windows, the leading slash in front of the drive letter
-			let filePath = path.resolve(decodeURI(request.url.replace(/^idkr-swap:/, "")).replace(/^[/\\]+(?=[a-zA-Z]:)/, ""));
-			let swapDir = path.resolve(BrowserLoader.getSwapDir());
-
-			// Only ever serve files from within the swap directory, never arbitrary local files
-			let normalize = p => process.platform === "win32" ? p.toLowerCase() : p;
-			if (!normalize(filePath).startsWith(normalize(swapDir + path.sep))) return new Response("Forbidden", { status: 403 });
-
-			let response = await net.fetch(pathToFileURL(filePath).toString());
-			let headers = new Headers(response.headers);
-			headers.set("Access-Control-Allow-Origin", "*");
-			return new Response(response.body, { status: response.status, headers });
-		});
+		SwapProtocol.register(BrowserLoader.getSwapDir());
+		BrowserLoader.installRequestFilters(config);
 		app.on("second-instance", (_, _argv) => {
 			let instanceArgv = yargs.parse(_argv);
 			console.log("Second instance: " + _argv);

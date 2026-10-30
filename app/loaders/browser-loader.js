@@ -1,7 +1,7 @@
 "use strict";
 let path = require("path");
 
-let { BrowserWindow, app, shell, dialog, clipboard } = require("electron");
+let { BrowserWindow, app, shell, dialog, clipboard, session } = require("electron");
 let log = require("electron-log");
 let shortcuts = require("electron-localshortcut");
 
@@ -9,6 +9,8 @@ let UrlUtils = require("../utils/url-utils");
 let PathUtils = require("../utils/path-utils");
 let WindowUtils = require("../utils/window-utils");
 let Swapper = require("../modules/swapper");
+let AdBlocker = require("../modules/adblocker");
+let RequestManager = require("../modules/request-manager");
 
 class BrowserLoader {
 	static load(isDebug = false, config) {
@@ -16,6 +18,29 @@ class BrowserLoader {
 		/** @type {string} */
 		let swapDirConfig = (config.get("resourceSwapperPath", ""));
 		this.swapDir = PathUtils.isValidPath(swapDirConfig) ? swapDirConfig : path.join(app.getPath("documents"), "idkr/swap");
+		this.adBlocker = new AdBlocker(config);
+	}
+
+	/**
+	 * Install the session-wide request filters (ad blocking and resource
+	 * swapping). Must be called after the app is ready.
+	 *
+	 * @static
+	 * @param {import("electron-store")} config
+	 * @memberof BrowserLoader
+	 */
+	static installRequestFilters(config) {
+		if (this.requestFiltersInstalled) return;
+		this.requestFiltersInstalled = true;
+
+		let requestManager = RequestManager.for(session.defaultSession);
+		requestManager.addHandler(this.adBlocker.handler);
+
+		let swapper = new Swapper(
+			/** @type {string} */(config.get("resourceSwapperMode", "normal")),
+			/** @type {string} */(this.swapDir)
+		);
+		swapper.init(requestManager);
 	}
 
 	/**
@@ -186,13 +211,6 @@ class BrowserLoader {
 			app.relaunch();
 			app.quit();
 		});
-
-		let swapper = new Swapper(
-			win,
-			/** @type {string} */(config.get("resourceSwapperMode", "normal")),
-			/** @type {string} */(this.swapDir)
-		);
-		swapper.init();
 
 		return win;
 	}

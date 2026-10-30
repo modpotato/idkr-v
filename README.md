@@ -31,6 +31,7 @@ Only 64-bit builds are provided, since current versions of Electron (and therefo
 - **idkr-v settings tab** inside Krunker's own settings: performance and Chromium flags, interface options, Discord, updates, userscripts and the resource swapper.
 - **Exit button** in the menu, plus the usual desktop conveniences (reload, new windows, fullscreen, DevTools).
 - **Alt-Manager**: store several accounts and switch between them from the menu. It fills in and submits Krunker's login form for you (email or username).
+- **Ad blocker**: blocks Krunker's ad requests and hides empty ad slots. It can be turned off in the idkr-v settings tab.
 - **Resource swapper**: replace game assets with your own files.
 - **Userscripts**: see [Userscripts.md](Userscripts.md).
 - **Discord Rich Presence**.
@@ -83,6 +84,10 @@ npm run startd     # run with DevTools open
 npm run pack       # unpacked build into dist/
 npm run dist       # installers / portable builds
 ```
+
+`npm test` runs the unit checks and then loads the live Krunker page in a hidden
+Electron window to verify the client features. The live part needs an internet
+connection.
 
 ## What changed compared to idkr 1.3.3
 - Electron 9 → 44. Current Krunker does not run on the old Chromium (it never got past the loading screen).

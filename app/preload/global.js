@@ -31,6 +31,8 @@ UtilManager.instance.clientUtils = {
 		let newValue = entry.min && entry.max ? Math.max(entry.min, Math.min(value, entry.max)) : value;
 
 		config.set(name, newValue);
+		// Keep the main process in sync for settings it reads while handling requests
+		if (name === "blockAds") ipcRenderer.send("adblock-update", newValue);
 		entry.val = newValue;
 		if (entry.set) entry.set(newValue);
 
@@ -154,29 +156,37 @@ ipcRenderer.on("rpc-stop", () => {
 	if (rpcIntervalId) clearInterval(rpcIntervalId);
 });
 
-ipcRenderer.invoke("get-app-info")
-	.then(info => {
-		// let oldConsole = {};
-		// Object.assign(oldConsole, console);
-		const initalize = async() => {
-			// Object.assign(console, oldConsole);
+const appInfoPromise = ipcRenderer.invoke("get-app-info");
+let clientInitialized = false;
+
+const initalize = async() => {
+	if (clientInitialized) return;
+	clientInitialized = true;
+
+	try {
+		let info = await appInfoPromise;
+		if (config.get("enableUserscripts", false)) {
+			const initiator = new UserscriptInitiator(
+				config,
+				String(config.get("userscriptsPath", "") || path.join(info.documentsDir, "idkr", "scripts")),
+				UtilManager.instance.clientUtils
+			);
+
+			await initiator.loadScripts(windowType);
+			// Userscripts add their settings here, so initialize after loading them
 			UtilManager.instance.clientUtils.initUtil();
-			if (config.get("enableUserscripts", true)) {
-				const initiator = new UserscriptInitiator(
-					config,
-					String(config.get("userscriptsPath", "") || path.join(info.documentsDir, "idkr", "scripts")),
-					UtilManager.instance.clientUtils
-				);
+			initiator.executeScripts();
+		}
+		else UtilManager.instance.clientUtils.initUtil();
+	}
+	catch (err) {
+		console.error("[idkr] Failed to initialize client utilities", err);
+	}
+};
 
-				await initiator.loadScripts(windowType);
-				initiator.executeScripts();
-			}
-		};
-
-		(windowType === "game")
-			? UtilManager.instance.clientUtils.events.on("game-load", () => initalize())
-			: initalize();
-	});
+// Register before the game can emit game-load, otherwise a fast load is missed
+if (windowType === "game") UtilManager.instance.clientUtils.events.on("game-load", () => initalize());
+else initalize();
 
 setFocusEvent();
 

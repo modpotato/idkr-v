@@ -1,6 +1,7 @@
 // @ts-nocheck
 "use strict";
 let UtilManager = require("../modules/util-manager");
+let { adBlockStyles } = require("../modules/styles-injection");
 
 module.exports = {
 	disableFrameRateLimit: {
@@ -119,6 +120,37 @@ module.exports = {
 			let btn = document.getElementById("accManagerBtn");
 			if (btn) btn.style.display = val ? "block" : "none";
 		}
+	},
+	blockAds: {
+		name: "Block Ads",
+		id: "blockAds",
+		cat: "Interface",
+		type: "checkbox",
+		val: true,
+		html() {
+			return UtilManager.instance.clientUtils.genCSettingsHTML(this);
+		},
+		set(val) {
+			this.val = val;
+
+			let apply = () => {
+				/** @type {HTMLElement} */
+				let style = (document.getElementById("idkr-adblock-styles"));
+				if (this.val) {
+					if (!style) {
+						style = document.createElement("style");
+						style.id = "idkr-adblock-styles";
+						style.textContent = adBlockStyles;
+						document.head.appendChild(style);
+					}
+				}
+				else if (style) style.remove();
+			};
+
+			if (document.head) apply();
+			else document.addEventListener("DOMContentLoaded", apply, { once: true });
+		},
+		info: "Blocks Krunker's ad requests and hides empty ad containers."
 	},
 	enableMenuTimer: {
 		name: "Always show Menu-Timer",

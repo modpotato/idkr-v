@@ -5,7 +5,7 @@
   "main": "./app/main.js",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test/unit.js && electron test/headless.js",
     "start": "electron .",
     "startd": "npm start -- --debug",
     "startd-linux": "ELECTRON_ENABLE_STACK_DUMPING=1 ELECTRON_ENABLE_LOGGING=true npm start -- --debug",

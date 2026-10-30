@@ -19,6 +19,10 @@ class IpcLoader {
 			documentsDir: app.getPath("documents")
 		}));
 
+		ipcMain.on("adblock-update", (_, enabled) => {
+			if (BrowserLoader.adBlocker) BrowserLoader.adBlocker.setEnabled(Boolean(enabled));
+		});
+
 		ipcMain.on("get-path", (event, name) => (event.returnValue = app.getPath(name)));
 
 		ipcMain.on("prompt", (event, message, defaultValue) => {
