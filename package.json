@@ -1,6 +1,6 @@
 {
   "name": "idkr",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "idkr-v (idkr vibe), a Krunker client",
   "main": "./app/main.js",
   "private": true,
