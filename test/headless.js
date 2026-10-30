@@ -162,6 +162,9 @@ async function main() {
 			url: location.href,
 			offCliV: window.OffCliV,
 			accManagerButton: !!document.getElementById("accManagerBtn"),
+			menuActive: !!(document.getElementById("uiBase") && document.getElementById("uiBase").classList.contains("onMenu")),
+			menuButtonVisible: (() => { const button = document.getElementById("customizeButton"); return !!button && button.getClientRects().length > 0; })(),
+			windowsCount: window.windows ? window.windows.length : 0,
 			prevSibling: document.getElementById("accManagerBtn") && document.getElementById("accManagerBtn").previousElementSibling && document.getElementById("accManagerBtn").previousElementSibling.id,
 			utilFound: !!util,
 			blockAdsSetting: !!(util && util.settings.blockAds),
@@ -174,6 +177,7 @@ async function main() {
 	})()`);
 
 	check("title is Krunker", /Krunker/i.test(page.title || ""), page.title);
+	check("game menu fully loaded", page.menuActive && page.menuButtonVisible && page.windowsCount > 10, { menuActive: page.menuActive, menuButtonVisible: page.menuButtonVisible, windowsCount: page.windowsCount });
 	const pageUrl = new URL(page.url);
 	check("game URL", pageUrl.hostname === "krunker.io" && pageUrl.pathname === "/", page.url);
 	check("OffCliV workaround is set", page.offCliV === true, page.offCliV);
